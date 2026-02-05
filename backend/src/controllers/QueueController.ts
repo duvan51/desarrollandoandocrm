@@ -7,15 +7,17 @@ import ShowQueueService from "../services/QueueService/ShowQueueService";
 import UpdateQueueService from "../services/QueueService/UpdateQueueService";
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
-  const queues = await ListQueuesService();
+  const { companyId } = req.user;
+  const queues = await ListQueuesService({ companyId });
 
   return res.status(200).json(queues);
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const { name, color, greetingMessage } = req.body;
+  const { companyId } = req.user;
 
-  const queue = await CreateQueueService({ name, color, greetingMessage });
+  const queue = await CreateQueueService({ name, color, greetingMessage, companyId });
 
   const io = getIO();
   io.emit("queue", {

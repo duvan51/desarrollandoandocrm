@@ -25,7 +25,8 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
   const { quickAnswers, count, hasMore } = await ListQuickAnswerService({
     searchParam,
-    pageNumber
+    pageNumber,
+    companyId: req.user.companyId
   });
 
   return res.json({ quickAnswers, count, hasMore });

@@ -11,5 +11,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "useUnknownInCatchVariables": false
-  }
+  },
+  "exclude": [
+    "src/__tests__"
+  ]
 }

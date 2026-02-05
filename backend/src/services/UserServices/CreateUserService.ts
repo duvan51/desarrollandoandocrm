@@ -3,6 +3,7 @@ import * as Yup from "yup";
 import AppError from "../../errors/AppError";
 import { SerializeUser } from "../../helpers/SerializeUser";
 import User from "../../models/User";
+import { CheckSettings as CheckPlanLimit } from "../../helpers/CheckPlanLimit";
 
 interface Request {
   email: string;
@@ -11,6 +12,7 @@ interface Request {
   queueIds?: number[];
   profile?: string;
   whatsappId?: number;
+  companyId: number;
 }
 
 interface Response {
@@ -26,7 +28,8 @@ const CreateUserService = async ({
   name,
   queueIds = [],
   profile = "admin",
-  whatsappId
+  whatsappId,
+  companyId
 }: Request): Promise<Response> => {
   const schema = Yup.object().shape({
     name: Yup.string().required().min(2),
@@ -53,12 +56,15 @@ const CreateUserService = async ({
     throw new AppError(err.message);
   }
 
+  await CheckPlanLimit(companyId, "users");
+
   const user = await User.create(
     {
       email,
       password,
       name,
       profile,
+      companyId,
       whatsappId: whatsappId ? whatsappId : null
     },
     { include: ["queues", "whatsapp"] }

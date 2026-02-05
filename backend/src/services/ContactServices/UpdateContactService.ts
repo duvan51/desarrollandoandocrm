@@ -17,11 +17,13 @@ interface ContactData {
 interface Request {
   contactData: ContactData;
   contactId: string;
+  companyId: number;
 }
 
 const UpdateContactService = async ({
   contactData,
-  contactId
+  contactId,
+  companyId
 }: Request): Promise<Contact> => {
   const { email, name, number, extraInfo } = contactData;
 
@@ -31,7 +33,7 @@ const UpdateContactService = async ({
     include: ["extraInfo"]
   });
 
-  if (!contact) {
+  if (!contact || (companyId !== 1 && contact.companyId !== companyId)) {
     throw new AppError("ERR_NO_CONTACT_FOUND", 404);
   }
 

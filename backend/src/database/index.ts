@@ -14,6 +14,8 @@ import Tag from "../models/Tag";
 import TicketTag from "../models/TicketTag";
 import TicketTracking from "../models/TicketTracking";
 import UserSessionLog from "../models/UserSessionLog";
+import Company from "../models/Company";
+import Plan from "../models/Plan";
 
 // eslint-disable-next-line
 const dbConfig = require("../config/database");
@@ -36,7 +38,9 @@ const models = [
   Tag,
   TicketTag,
   TicketTracking,
-  UserSessionLog
+  UserSessionLog,
+  Company,
+  Plan
 ];
 
 sequelize.addModels(models);

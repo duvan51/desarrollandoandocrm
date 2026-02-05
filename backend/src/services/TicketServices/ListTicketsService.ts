@@ -20,6 +20,7 @@ interface Request {
   queueIds: number[];
   tagId?: string;
   unanswered?: string;
+  companyId?: number;
 }
 
 interface Response {
@@ -38,12 +39,20 @@ const ListTicketsService = async ({
   userId,
   withUnreadMessages,
   tagId,
-  unanswered
+  unanswered,
+  companyId
 }: Request): Promise<Response> => {
   let whereCondition: Filterable["where"] = {
     [Op.or]: [{ userId }, { status: "pending" }],
     queueId: { [Op.or]: [queueIds, null] }
   };
+
+  if (companyId && companyId !== 1) {
+    whereCondition = {
+      ...whereCondition,
+      companyId
+    };
+  }
   let includeCondition: Includeable[];
 
   includeCondition = [
@@ -60,7 +69,8 @@ const ListTicketsService = async ({
     {
       model: Whatsapp,
       as: "whatsapp",
-      attributes: ["name"]
+      attributes: ["name"],
+      where: companyId && companyId !== 1 ? { companyId } : undefined
     },
     {
       model: Tag,
@@ -72,7 +82,7 @@ const ListTicketsService = async ({
   ];
 
   if (showAll === "true") {
-    whereCondition = { queueId: { [Op.or]: [queueIds, null] } };
+    whereCondition = { ...whereCondition, queueId: { [Op.or]: [queueIds, null] } };
   }
 
   if (status) {
@@ -127,6 +137,7 @@ const ListTicketsService = async ({
 
   if (date) {
     whereCondition = {
+      ...whereCondition,
       createdAt: {
         [Op.between]: [+startOfDay(parseISO(date)), +endOfDay(parseISO(date))]
       }
@@ -141,6 +152,13 @@ const ListTicketsService = async ({
       [Op.or]: [{ userId }, { status: "pending" }],
       queueId: { [Op.or]: [userQueueIds, null] },
       unreadMessages: { [Op.gt]: 0 }
+    };
+  }
+
+  if (companyId && companyId !== 1) {
+    whereCondition = {
+      ...whereCondition,
+      companyId
     };
   }
 

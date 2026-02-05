@@ -6,6 +6,7 @@ import Whatsapp from "../../models/Whatsapp";
 interface Request {
   searchParam?: string;
   pageNumber?: string | number;
+  companyId?: number;
 }
 
 interface Response {
@@ -16,9 +17,10 @@ interface Response {
 
 const ListUsersService = async ({
   searchParam = "",
-  pageNumber = "1"
+  pageNumber = "1",
+  companyId
 }: Request): Promise<Response> => {
-  const whereCondition = {
+  const whereCondition: any = {
     [Op.or]: [
       {
         "$User.name$": Sequelize.where(
@@ -30,6 +32,10 @@ const ListUsersService = async ({
       { email: { [Op.like]: `%${searchParam.toLowerCase()}%` } }
     ]
   };
+
+  if (companyId && companyId !== 1) {
+    whereCondition["companyId"] = companyId;
+  }
   const limit = 20;
   const offset = limit * (+pageNumber - 1);
 

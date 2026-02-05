@@ -8,6 +8,7 @@ const FindOrCreateTicketService = async (
   contact: Contact,
   whatsappId: number,
   unreadMessages: number,
+  companyId: number,
   groupContact?: Contact
 ): Promise<Ticket> => {
   let ticket = await Ticket.findOne({
@@ -69,7 +70,8 @@ const FindOrCreateTicketService = async (
       status: "pending",
       isGroup: !!groupContact,
       unreadMessages,
-      whatsappId
+      whatsappId,
+      companyId
     });
   }
 

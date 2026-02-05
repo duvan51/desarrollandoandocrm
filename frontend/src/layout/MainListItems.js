@@ -17,6 +17,7 @@ import AccountTreeOutlinedIcon from "@material-ui/icons/AccountTreeOutlined";
 import QuestionAnswerOutlinedIcon from "@material-ui/icons/QuestionAnswerOutlined";
 import LocalOfferOutlinedIcon from "@material-ui/icons/LocalOfferOutlined";
 import ViewColumnOutlinedIcon from "@material-ui/icons/ViewColumnOutlined";
+import ListIcon from "@material-ui/icons/List";
 
 import { i18n } from "../translate/i18n";
 import { WhatsAppsContext } from "../context/WhatsApp/WhatsAppsContext";
@@ -138,6 +139,13 @@ const MainListItems = (props) => {
               primary={i18n.t("mainDrawer.listItems.settings")}
               icon={<SettingsOutlinedIcon />}
             />
+            {user.companyId === 1 && (
+              <ListItemLink
+                to="/plans"
+                primary="Planes"
+                icon={<ListIcon />}
+              />
+            )}
           </>
         )}
       />

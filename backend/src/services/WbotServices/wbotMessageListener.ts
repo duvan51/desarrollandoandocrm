@@ -32,14 +32,15 @@ interface Session extends Client {
 
 const writeFileAsync = promisify(writeFile);
 
-const verifyContact = async (msgContact: WbotContact): Promise<Contact> => {
+const verifyContact = async (msgContact: WbotContact, companyId: number): Promise<Contact> => {
   const profilePicUrl = await msgContact.getProfilePicUrl();
 
   const contactData = {
     name: msgContact.name || msgContact.pushname || msgContact.id.user,
     number: msgContact.id.user,
     profilePicUrl,
-    isGroup: msgContact.isGroup
+    isGroup: msgContact.isGroup,
+    companyId
   };
 
   const contact = CreateOrUpdateContactService(contactData);
@@ -302,6 +303,9 @@ const handleMessage = async (
 
     const chat = await msg.getChat();
 
+    const whatsapp = await ShowWhatsAppService(wbot.id!);
+    const { companyId } = whatsapp;
+
     if (chat.isGroup) {
       let msgGroupContact;
 
@@ -311,13 +315,12 @@ const handleMessage = async (
         msgGroupContact = await wbot.getContactById(msg.from);
       }
 
-      groupContact = await verifyContact(msgGroupContact);
+      groupContact = await verifyContact(msgGroupContact, companyId);
     }
-    const whatsapp = await ShowWhatsAppService(wbot.id!);
 
     const unreadMessages = msg.fromMe ? 0 : chat.unreadCount;
 
-    const contact = await verifyContact(msgContact);
+    const contact = await verifyContact(msgContact, companyId);
 
     if (
       unreadMessages === 0 &&
@@ -330,6 +333,7 @@ const handleMessage = async (
       contact,
       wbot.id!,
       unreadMessages,
+      companyId,
       groupContact
     );
 

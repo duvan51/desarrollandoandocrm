@@ -6,7 +6,7 @@ import Queue from "../../models/Queue";
 import Whatsapp from "../../models/Whatsapp";
 import Tag from "../../models/Tag";
 
-const ShowTicketService = async (id: string | number): Promise<Ticket> => {
+const ShowTicketService = async (id: string | number, companyId?: number): Promise<Ticket> => {
   const ticket = await Ticket.findByPk(id, {
     include: [
       {
@@ -39,6 +39,10 @@ const ShowTicketService = async (id: string | number): Promise<Ticket> => {
   });
 
   if (!ticket) {
+    throw new AppError("ERR_NO_TICKET_FOUND", 404);
+  }
+
+  if (companyId && companyId !== 1 && ticket.companyId !== companyId) {
     throw new AppError("ERR_NO_TICKET_FOUND", 404);
   }
 

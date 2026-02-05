@@ -18,7 +18,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
     const { searchParam } = req.query as { searchParam: string };
     const { id: userId } = req.user;
 
-    const tags = await ListTagsService({ searchParam, userId: Number(userId) });
+    const tags = await ListTagsService({ searchParam, userId: Number(userId), companyId: req.user.companyId });
 
     return res.status(200).json(tags);
 };

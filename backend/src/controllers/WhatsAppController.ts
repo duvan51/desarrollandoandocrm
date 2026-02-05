@@ -19,7 +19,8 @@ interface WhatsappData {
 }
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
-  const whatsapps = await ListWhatsAppsService();
+  const { companyId } = req.user;
+  const whatsapps = await ListWhatsAppsService(companyId);
 
   return res.status(200).json(whatsapps);
 };
@@ -34,13 +35,16 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     queueIds
   }: WhatsappData = req.body;
 
+  const { companyId } = req.user;
+
   const { whatsapp, oldDefaultWhatsapp } = await CreateWhatsAppService({
     name,
     status,
     isDefault,
     greetingMessage,
     farewellMessage,
-    queueIds
+    queueIds,
+    companyId
   });
 
   StartWhatsAppSession(whatsapp);
@@ -64,7 +68,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 export const show = async (req: Request, res: Response): Promise<Response> => {
   const { whatsappId } = req.params;
 
-  const whatsapp = await ShowWhatsAppService(whatsappId);
+  const { companyId } = req.user;
+  const whatsapp = await ShowWhatsAppService(whatsappId, companyId);
 
   return res.status(200).json(whatsapp);
 };
@@ -76,9 +81,12 @@ export const update = async (
   const { whatsappId } = req.params;
   const whatsappData = req.body;
 
+  const { companyId } = req.user;
+
   const { whatsapp, oldDefaultWhatsapp } = await UpdateWhatsAppService({
     whatsappData,
-    whatsappId
+    whatsappId,
+    companyId
   });
 
   const io = getIO();
@@ -103,7 +111,9 @@ export const remove = async (
 ): Promise<Response> => {
   const { whatsappId } = req.params;
 
-  await DeleteWhatsAppService(whatsappId);
+  const { companyId } = req.user;
+
+  await DeleteWhatsAppService(whatsappId, companyId);
   removeWbot(+whatsappId);
 
   const io = getIO();

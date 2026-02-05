@@ -9,6 +9,7 @@ import ListUsersService from "../services/UserServices/ListUsersService";
 import UpdateUserService from "../services/UserServices/UpdateUserService";
 import ShowUserService from "../services/UserServices/ShowUserService";
 import DeleteUserService from "../services/UserServices/DeleteUserService";
+import SignUpService from "../services/UserServices/SignUpService";
 
 type IndexQuery = {
   searchParam: string;
@@ -20,7 +21,8 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
   const { users, count, hasMore } = await ListUsersService({
     searchParam,
-    pageNumber
+    pageNumber,
+    companyId: req.user.companyId
   });
 
   return res.json({ users, count, hasMore });
@@ -29,14 +31,19 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const { email, password, name, profile, queueIds, whatsappId } = req.body;
 
-  if (
-    req.url === "/signup" &&
-    (await CheckSettingsHelper("userCreation")) === "disabled"
-  ) {
-    throw new AppError("ERR_USER_CREATION_DISABLED", 403);
-  } else if (req.url !== "/signup" && req.user.profile !== "admin") {
-    throw new AppError("ERR_NO_PERMISSION", 403);
+  if (req.url === "/signup") {
+    const user = await SignUpService({
+      email,
+      password,
+      name,
+      companyName: req.body.companyName || name,
+      planId: req.body.planId
+    });
+
+    return res.status(200).json(user);
   }
+
+  const { companyId } = req.user;
 
   const user = await CreateUserService({
     email,
@@ -44,7 +51,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     name,
     profile,
     queueIds,
-    whatsappId
+    whatsappId,
+    companyId
   });
 
   const io = getIO();

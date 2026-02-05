@@ -1,6 +1,7 @@
 import Ticket from "./Ticket";
 import TicketTag from "./TicketTag";
 import User from "./User";
+import Company from "./Company";
 import {
     Table,
     Column,
@@ -42,6 +43,13 @@ class Tag extends Model<Tag> {
 
     @UpdatedAt
     updatedAt: Date;
+
+    @ForeignKey(() => Company)
+    @Column
+    companyId: number;
+
+    @BelongsTo(() => Company)
+    company: Company;
 
     @BelongsToMany(() => Ticket, () => TicketTag)
     tickets: Ticket[];

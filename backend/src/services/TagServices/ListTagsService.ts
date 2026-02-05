@@ -4,13 +4,19 @@ import { Op } from "sequelize";
 interface Request {
     searchParam?: string;
     userId?: string | number;
+    companyId?: number;
 }
 
 const ListTagsService = async ({
     searchParam,
-    userId
+    userId,
+    companyId
 }: Request): Promise<Tag[]> => {
     let whereCondition: any = {};
+
+    if (companyId && companyId !== 1) {
+        whereCondition.companyId = companyId;
+    }
 
     if (userId) {
         whereCondition.userId = userId;

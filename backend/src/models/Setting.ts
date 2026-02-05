@@ -4,17 +4,32 @@ import {
   CreatedAt,
   UpdatedAt,
   Model,
-  PrimaryKey
+  PrimaryKey,
+  ForeignKey,
+  BelongsTo,
+  AutoIncrement
 } from "sequelize-typescript";
+import Company from "./Company";
 
 @Table
 class Setting extends Model<Setting> {
   @PrimaryKey
+  @AutoIncrement
+  @Column
+  id: number;
+
   @Column
   key: string;
 
   @Column
   value: string;
+
+  @ForeignKey(() => Company)
+  @Column
+  companyId: number;
+
+  @BelongsTo(() => Company)
+  company: Company;
 
   @CreatedAt
   createdAt: Date;

@@ -60,7 +60,8 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
     queueIds,
     withUnreadMessages,
     tagId,
-    unanswered
+    unanswered,
+    companyId: req.user.companyId
   });
 
   return res.status(200).json({ tickets, count, hasMore });
@@ -72,18 +73,21 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   const ticket = await CreateTicketService({ contactId, status, userId });
 
   const io = getIO();
-  io.to(ticket.status).emit("ticket", {
-    action: "update",
-    ticket
-  });
+  io.to(ticket.status)
+    .to(`company-${ticket.companyId}-${ticket.status}`)
+    .emit("ticket", {
+      action: "update",
+      ticket
+    });
 
   return res.status(200).json(ticket);
 };
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
   const { ticketId } = req.params;
+  const { companyId } = req.user;
 
-  const contact = await ShowTicketService(ticketId);
+  const contact = await ShowTicketService(ticketId, companyId);
 
   return res.status(200).json(contact);
 };
@@ -125,10 +129,15 @@ export const remove = async (
   const ticket = await DeleteTicketService(ticketId);
 
   const io = getIO();
-  io.to(ticket.status).to(ticketId).to("notification").emit("ticket", {
-    action: "delete",
-    ticketId: +ticketId
-  });
+  io.to(ticket.status)
+    .to(ticketId)
+    .to("notification")
+    .to(`company-${ticket.companyId}-${ticket.status}`)
+    .to(`company-${ticket.companyId}-notification`)
+    .emit("ticket", {
+      action: "delete",
+      ticketId: +ticketId
+    });
 
   return res.status(200).json({ message: "ticket deleted" });
 };

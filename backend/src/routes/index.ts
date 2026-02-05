@@ -14,6 +14,7 @@ import apiRoutes from "./apiRoutes";
 import tagRoutes from "./tagRoutes";
 import dashboardRoutes from "./dashboardRoutes";
 import metaRoutes from "./metaRoutes";
+import planRoutes from "./planRoutes";
 
 const routes = Router();
 
@@ -31,5 +32,6 @@ routes.use("/api/messages", apiRoutes);
 routes.use(tagRoutes);
 routes.use(dashboardRoutes);
 routes.use(metaRoutes);
+routes.use(planRoutes);
 
 export default routes;

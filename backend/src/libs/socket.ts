@@ -12,6 +12,7 @@ interface TokenPayload {
   id: string;
   username: string;
   profile: string;
+  companyId?: number;
   iat: number;
   exp: number;
 }
@@ -32,7 +33,7 @@ export const initIO = (httpServer: Server): SocketIO => {
       token = token[0];
     }
 
-    let tokenData = null;
+    let tokenData: TokenPayload | null = null;
 
     try {
       tokenData = verify(token as string, authConfig.secret) as TokenPayload;
@@ -55,13 +56,23 @@ export const initIO = (httpServer: Server): SocketIO => {
     });
 
     socket.on("joinNotification", () => {
-      logger.info("A client joined notification channel");
-      socket.join("notification");
+      if (tokenData && tokenData.companyId) {
+        logger.info(`A client joined company ${tokenData.companyId} notification channel`);
+        socket.join(`company-${tokenData.companyId}-notification`);
+      } else {
+        logger.info("A client joined notification channel");
+        socket.join("notification");
+      }
     });
 
     socket.on("joinTickets", (status: string) => {
-      logger.info(`A client joined to ${status} tickets channel.`);
-      socket.join(status);
+      if (tokenData && tokenData.companyId) {
+        logger.info(`A client joined company ${tokenData.companyId} ${status} tickets channel.`);
+        socket.join(`company-${tokenData.companyId}-${status}`);
+      } else {
+        logger.info(`A client joined to ${status} tickets channel.`);
+        socket.join(status);
+      }
     });
 
     // Session logic
